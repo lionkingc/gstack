@@ -61,6 +61,11 @@ foreach ($skillDir in $skillDirs) {
     # 4. Replace macOS `open https://...` with Windows `start https://...`
     $content = $content -replace '(?m)^(open )(https?://)', 'start $2'
 
+    # 5. Wrap ```bash blocks with PowerShell bash -c @' ... '@ so they correctly run natively without quoting issues
+    # Uses (?sm) multiline + singleline to allow matching padded code blocks exactly layouted.
+    $bashToPs = '$1```powershell' + "`n" + '$1& "C:\Program Files\Git\bin\bash.exe" -c @''' + "`n" + '$2' + "`n" + '$1''@' + "`n" + '$1```'
+    $content = [regex]::Replace($content, '(?sm)^([ \t]*)```bash\r?\n(.*?)\r?\n[ \t]*```[ \t]*\r?$', $bashToPs)
+
     Set-Content -Path $dstSkillMd -Value $content -Encoding UTF8 -NoNewline
 
     $installed += $skillName
