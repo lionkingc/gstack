@@ -172,10 +172,10 @@ async function startServer(): Promise<ServerState> {
   // Fall back to running the server under Node.js with Bun API polyfills.
   const useNode = IS_WINDOWS && NODE_SERVER_SCRIPT;
   const serverCmd = useNode
-    ? ['node', NODE_SERVER_SCRIPT]
+    ? ['cmd', '/c', 'start', '/b', 'node', NODE_SERVER_SCRIPT]
     : ['bun', 'run', SERVER_SCRIPT];
   const proc = Bun.spawn(serverCmd, {
-    stdio: ['ignore', 'pipe', 'pipe'],
+    stdio: ['ignore', 'ignore', 'ignore'], // Windows Node fallback uses cmd detach, ignore pipes altogether
     env: { ...process.env, BROWSE_STATE_FILE: config.stateFile },
   });
 
